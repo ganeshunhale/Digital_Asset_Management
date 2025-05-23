@@ -1,0 +1,21 @@
+{
+  "name": "dam_system",
+  "version": "1.0.0",
+  "description": "digital asset management system Assignment for Eccentric",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "author": "Ganesh",
+  "license": "ISC",
+  "dependencies": {
+    "cloudinary": "^2.6.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mongoose": "^8.15.0",
+    "multer": "^2.0.0"
+  }
+}
