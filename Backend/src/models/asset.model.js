@@ -1,4 +1,4 @@
-import mongoose,{Schema,model} from "mongoose"
+import {Schema,model} from "mongoose"
 
 const AssetSchema = new Schema({
     filename: {
@@ -21,14 +21,6 @@ const AssetSchema = new Schema({
       publicId: {
         type: String,
         required: true
-      },
-      tags: {
-        type: [String],
-        default: []
-      },
-      metadata: {
-        type: Object,
-        default: {}
       }
 },{
 timestamps: true
