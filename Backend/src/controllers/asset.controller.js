@@ -44,14 +44,14 @@ const getAssets = async (req, res) => {
         const { filename, type, sortBy } = req.query;
 
         const query = {};
-
+        console.log(filename,type,sortBy);
         // Filter by filename (partial match, case-insensitive)
         if (filename) {
             query.filename = { $regex: filename, $options: 'i' };
         }
 
         // Filter by type (exact match)
-        if (type) {
+        if (type && type !== 'all') {
             query.type = type;
         }
 
