@@ -10,6 +10,7 @@ const ALLOWED_FILE_TYPES = ['image', 'video', 'pdf'];
 
 const uploadAsset = async (req,res)=>{
     try {
+        console.log("upload asset called");
         if (!req.file || Object.keys(req.file).length === 0) {
             return res.status(400).json({ message: 'No files were uploaded' });
         }
@@ -62,7 +63,7 @@ const uploadAsset = async (req,res)=>{
 const getAssets = async (req, res) => {
     try {
         const { filename, type, sortBy } = req.query;
-
+        console.log("get assets called");
         const query = {};
         if (filename) {
             query.filename = { $regex: filename, $options: 'i' };
@@ -99,7 +100,7 @@ const getAssets = async (req, res) => {
 const deleteAsset = async (req, res) => {
     try {
         const { id } = req.params;
-
+        console.log("deleted id",id);
         const asset = await Asset.findById(id);
         if (!asset) {
             return res.status(404).json({ message: "Asset not found" });
