@@ -1,33 +1,53 @@
-import { uploadCloudinary } from "../utils/cloudinary.js";
+import { deleteFromCloudinary, uploadCloudinary } from "../utils/cloudinary.js";
 
-import {Asset} from "../models/asset.model.js"; // Assuming you have an Asset model defined
+import {Asset} from "../models/asset.model.js"; 
 import getFileType from "../utils/fileTypeHelper.js";
+
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; 
+
+const ALLOWED_FILE_TYPES = ['image', 'video', 'pdf'];
+
 const uploadAsset = async (req,res)=>{
     try {
         if (!req.file || Object.keys(req.file).length === 0) {
             return res.status(400).json({ message: 'No files were uploaded' });
-          }
-          const FilePath = req.file?.path
+        }
 
-          if (!FilePath) {
-            return res.status(400).json({ message: 'Avatar is required' });
+        if (req.file.size > MAX_FILE_SIZE) {
+            return res.status(400).json({ 
+                message: `File size too large. Maximum size allowed is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+                maxSizeInBytes: MAX_FILE_SIZE
+            });
+        }
+
+        const fileType = getFileType(req.file.mimetype);
+        if (!ALLOWED_FILE_TYPES.includes(fileType)) {
+            return res.status(400).json({ 
+                message: `Invalid file type. Only photos, videos, and PDFs are allowed.`,
+                allowedTypes: ALLOWED_FILE_TYPES
+            });
+        }
+
+        const FilePath = req.file?.path
+
+        if (!FilePath) {
+            return res.status(400).json({ message: 'File is required' });
         }
 
         const cloudinaryResult = await uploadCloudinary(FilePath)
-    // console.log({cloudinaryResult});
 
     if (!cloudinaryResult.secure_url) {
         return res.status(400).json({ message: 'Failed to upload file' });
     }
-    const assetData = {
+    
+    const newAsset = await Asset.create({
         filename: req.file.originalname,
-        type: getFileType(req.file.mimetype),
+        type: fileType,
         size: req.file.size,
         url: cloudinaryResult.secure_url,
         publicId: cloudinaryResult.public_id,
-    }
-    const asset = new Asset(assetData);
-    await asset.save();
+    });
     
     return res.status(200).json({message:"file uploaded Successfully"})
     
@@ -44,18 +64,14 @@ const getAssets = async (req, res) => {
         const { filename, type, sortBy } = req.query;
 
         const query = {};
-        console.log(filename,type,sortBy);
-        // Filter by filename (partial match, case-insensitive)
         if (filename) {
             query.filename = { $regex: filename, $options: 'i' };
         }
 
-        // Filter by type (exact match)
         if (type && type !== 'all') {
             query.type = type;
         }
 
-        // Default sort: latest first
         let sortOption = { createdAt: -1 };
 
         switch (sortBy) {
@@ -80,5 +96,25 @@ const getAssets = async (req, res) => {
         return res.status(500).json({ message: "Server error while fetching assets" });
     }
 };
+const deleteAsset = async (req, res) => {
+    try {
+        const { id } = req.params;
 
-export {uploadAsset,getAssets}
+        const asset = await Asset.findById(id);
+        if (!asset) {
+            return res.status(404).json({ message: "Asset not found" });
+        }
+
+        if (asset.publicId) {
+            await deleteFromCloudinary(asset.publicId);
+        }
+
+        await Asset.findByIdAndDelete(id);
+
+        return res.status(200).json({ message: "Asset deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting asset:", error);
+        return res.status(500).json({ message: "Server error while deleting asset" });
+    }
+};
+export {uploadAsset,getAssets,deleteAsset}

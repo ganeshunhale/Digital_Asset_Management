@@ -16,10 +16,10 @@ const fileTypeOptions = [
   { label: 'All', value: 'all' },
   { label: 'Image', value: 'image' },
   { label: 'PDF', value: 'pdf' },
-  { label: 'Document', value: 'doc' },
+  { label: 'Video', value: 'video' },
 ];
 
-const FileManagerControls = ({ filters, onFilterChange, onFileUpload }) => {
+const FileManagerControls = ({ filters, onFilterChange, onFileUpload, acceptedFileTypes }) => {
   return (
     <Box
       sx={{
@@ -78,7 +78,6 @@ const FileManagerControls = ({ filters, onFilterChange, onFileUpload }) => {
               flex: { md: '0 0 auto' },
             }}
           >
-            {/* Sort Dropdown */}
             <TextField
               select
               size="small"
@@ -115,7 +114,6 @@ const FileManagerControls = ({ filters, onFilterChange, onFileUpload }) => {
               ))}
             </TextField>
 
-            {/* File Type Dropdown */}
             <TextField
               select
               size="small"
@@ -152,7 +150,6 @@ const FileManagerControls = ({ filters, onFilterChange, onFileUpload }) => {
               ))}
             </TextField>
 
-            {/* Upload Button */}
             <Button
               variant="contained"
               component="label"
@@ -173,7 +170,7 @@ const FileManagerControls = ({ filters, onFilterChange, onFileUpload }) => {
                 type="file"
                 hidden
                 onChange={onFileUpload}
-                accept="image/*,.pdf,.doc,.docx"
+                accept={acceptedFileTypes}
               />
             </Button>
           </Stack>
